@@ -261,13 +261,13 @@ HTML_TEMPLATE = '''
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JUBAYER ULTRA TERMINAL</title>
+    <title>JUBAYER ULTRA TERMINAL v3.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* 120FPS Smooth Tuning & Layout Styling */
+        /* 120FPS Smooth Premium Cyberpunk Layout */
         * {
             margin: 0;
             padding: 0;
@@ -277,109 +277,160 @@ HTML_TEMPLATE = '''
         }
 
         body {
-            background-color: #060e17; /* Cyberpunk Deep Dark Blue-Black */
+            background: radial-gradient(circle at top, #0f0c20 0%, #06040a 100%);
             color: #ffffff;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* Top Grid Neon Counters */
-        .stat-box {
-            background: rgba(10, 25, 41, 0.7);
-            border: 1px solid #102a43;
+        /* Neon Text Glow Effect */
+        .neon-text-cyan {
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+        .neon-text-magenta {
+            text-shadow: 0 0 10px rgba(255, 0, 127, 0.6), 0 0 20px rgba(255, 0, 127, 0.3);
+        }
+
+        /* Top Grid Neon Counters - Vibrant Colors */
+        .stat-box-1 {
+            background: linear-gradient(135deg, rgba(255, 0, 85, 0.1) 0%, rgba(5, 15, 28, 0.8) 100%);
+            border: 1px solid rgba(255, 0, 85, 0.3);
             border-radius: 16px;
             text-align: center;
-            padding: 15px 10px;
-            box-shadow: inset 0 0 15px rgba(0, 191, 255, 0.05);
+            padding: 18px 12px;
+            box-shadow: 0 4px 20px rgba(255, 0, 85, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .stat-val {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: #00d2ff;
-            text-shadow: 0 0 12px rgba(0, 210, 255, 0.6);
+        .stat-box-1:hover {
+            border-color: #ff0055;
+            box-shadow: 0 0 25px rgba(255, 0, 85, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .stat-box-2 {
+            background: linear-gradient(135deg, rgba(0, 210, 255, 0.1) 0%, rgba(5, 15, 28, 0.8) 100%);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 16px;
+            text-align: center;
+            padding: 18px 12px;
+            box-shadow: 0 4px 20px rgba(0, 210, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .stat-box-2:hover {
+            border-color: #00d2ff;
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .stat-val-1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: #ff0055;
+            text-shadow: 0 0 15px rgba(255, 0, 85, 0.6);
             line-height: 1;
+            font-family: 'Orbitron', sans-serif;
         }
+        .stat-val-2 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: #00d2ff;
+            text-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
+            line-height: 1;
+            font-family: 'Orbitron', sans-serif;
+        }
+
         .stat-lbl {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #627d98;
-            margin-top: 4px;
-            font-weight: 600;
+            letter-spacing: 2px;
+            color: #a0aec0;
+            margin-top: 8px;
+            font-weight: 700;
         }
 
         /* Pill Navigation Tabs */
         .nav-tab {
-            background: #0f2537;
-            border: 1px solid #1b3d54;
-            color: #00d2ff;
+            background: linear-gradient(90deg, #7928ca 0%, #ff0080 100%);
+            border: none;
+            color: #ffffff;
             border-radius: 30px;
             font-weight: 700;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            will-change: background, box-shadow;
-        }
-        .nav-tab.active {
-            background: #00d2ff;
-            color: #000000;
-            box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
-            border-color: #00d2ff;
+            font-size: 0.95rem;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 15px rgba(255, 0, 128, 0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
         }
 
         /* Glowing Link Buttons */
         .cyber-link-btn {
-            background: rgba(0, 210, 255, 0.05);
-            border: 1px solid rgba(0, 210, 255, 0.2);
-            color: #00d2ff;
-            font-size: 0.8rem;
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            color: #00f0ff;
+            font-size: 0.75rem;
             font-weight: 700;
-            letter-spacing: 1px;
-            padding: 6px 16px;
-            border-radius: 20px;
+            letter-spacing: 1.5px;
+            padding: 10px 18px;
+            border-radius: 25px;
             transition: all 0.25s ease;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
         .cyber-link-btn:hover {
-            background: #00d2ff;
+            background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%);
             color: #000000;
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.5);
-            border-color: #00d2ff;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+            border-color: #00f0ff;
+            transform: scale(1.03);
         }
 
         /* Glowing Cyber Container Cards */
         .cyber-panel {
-            background: rgba(10, 25, 41, 0.5);
-            border: 1px solid #14324a;
-            border-radius: 20px;
-            padding: 22px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: rgba(15, 11, 32, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 26px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7), inset 0 1px 2px rgba(255,255,255,0.05);
             position: relative;
         }
+        .cyber-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 24px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(0,255,204,0.3), rgba(255,0,128,0.1), rgba(0,210,255,0.3));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
         .panel-title-bar {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 1.1rem;
+            gap: 12px;
+            font-size: 1.2rem;
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             color: #00ffcc;
-            text-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
-            margin-bottom: 20px;
+            text-shadow: 0 0 12px rgba(0, 255, 204, 0.4);
+            margin-bottom: 22px;
         }
         .panel-indicator {
-            width: 4px;
+            width: 5px;
             height: 18px;
             background: #00ffcc;
-            border-radius: 2px;
-            box-shadow: 0 0 8px #00ffcc;
+            border-radius: 3px;
+            box-shadow: 0 0 12px #00ffcc;
         }
 
         /* Rounded Deep Inputs */
         .cyber-input {
-            background: #040a10;
-            border: 1px solid #142f44;
+            background: rgba(5, 3, 10, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 30px;
             color: #ffffff;
             font-size: 1rem;
@@ -387,73 +438,90 @@ HTML_TEMPLATE = '''
             width: 100%;
             outline: none;
             transition: all 0.25s ease;
+            letter-spacing: 0.5px;
         }
         .cyber-input:focus {
-            border-color: #00d2ff;
-            box-shadow: inset 0 0 8px rgba(0, 210, 255, 0.2);
+            border-color: #ff0080;
+            box-shadow: 0 0 15px rgba(255, 0, 128, 0.25), inset 0 0 8px rgba(255, 0, 128, 0.1);
         }
 
-        /* Action Buttons with Dynamic Smooth Glows */
+        /* Action Buttons with Multi-Color Gradient */
         .btn-glow-cyan {
-            background: #00d2ff;
-            color: #000000;
+            background: linear-gradient(135deg, #00f0ff 0%, #7928ca 50%, #ff0080 100%);
+            color: #ffffff;
             font-weight: 700;
             border-radius: 30px;
-            font-size: 1rem;
-            letter-spacing: 1px;
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.05rem;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 25px rgba(255, 0, 128, 0.35);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             will-change: transform, box-shadow;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
         }
         .btn-glow-cyan:hover {
-            transform: scale(1.01);
-            box-shadow: 0 0 25px rgba(0, 210, 255, 0.6);
+            transform: scale(1.02);
+            box-shadow: 0 6px 30px rgba(0, 240, 255, 0.5);
         }
 
-        .btn-glow-pink {
-            background: #ff0055;
-            color: #ffffff;
-            font-weight: 700;
-            border-radius: 30px;
-            font-size: 1rem;
-            letter-spacing: 1px;
-            box-shadow: 0 0 15px rgba(255, 0, 85, 0.3);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            will-change: transform, box-shadow;
-        }
-        .btn-glow-pink:hover {
-            transform: scale(1.01);
-            box-shadow: 0 0 25px rgba(255, 0, 85, 0.6);
-        }
-
-        /* Inline Target Stop Mini Button */
-        .inline-stop-btn {
-            background: rgba(255, 0, 85, 0.2);
-            border: 1px solid #ff0055;
-            color: #ff0055;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 8px;
+        /* High Resolution Vector Target Card Style */
+        .vector-card {
+            background: linear-gradient(180deg, #120a2a 0%, #070412 100%);
+            border: 1px solid rgba(0, 255, 204, 0.3);
             border-radius: 20px;
-            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            padding: 18px;
+            transition: all 0.3s ease;
+        }
+        .vector-card:hover {
+            border-color: #00ffcc;
+            box-shadow: 0 12px 35px rgba(0, 255, 204, 0.25);
+        }
+        
+        /* High Resolution Crisp Image Viewport */
+        .vector-image-frame {
+            width: 100%;
+            height: 150px;
+            border-radius: 14px;
+            background-color: #030207;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            position: relative;
+        }
+        .vector-image-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .vector-stop-btn {
+            background: linear-gradient(135deg, #ff0055 0%, #b3003b 100%);
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            padding: 9px 22px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(255, 0, 85, 0.4);
             transition: all 0.2s ease;
         }
-        .inline-stop-btn:hover {
-            background: #ff0055;
-            color: #ffffff;
-            box-shadow: 0 0 10px #ff0055;
+        .vector-stop-btn:hover {
+            box-shadow: 0 6px 25px rgba(255, 0, 85, 0.7);
+            transform: scale(1.05);
         }
 
         /* Seamless Custom Scrollbars for Bot List */
         .panel-scroll::-webkit-scrollbar {
-            width: 4px;
+            width: 5px;
         }
         .panel-scroll::-webkit-scrollbar-track {
             background: transparent;
         }
         .panel-scroll::-webkit-scrollbar-thumb {
-            background: #14324a;
+            background: #2d1a4d;
             border-radius: 10px;
+        }
+        .panel-scroll::-webkit-scrollbar-thumb:hover {
+            background: #ff0080;
         }
 
         /* Message Toasts Animations */
@@ -467,15 +535,17 @@ HTML_TEMPLATE = '''
             opacity: 1;
             transform: translateY(0);
         }
+        
+        .font-poppins { font-family: 'Poppins', sans-serif; }
     </style>
 </head>
 <body class="py-6 px-4 max-w-xl mx-auto flex flex-col justify-start">
 
     <header class="flex flex-col items-center justify-center my-4 text-center">
-        <h1 class="text-3xl font-extrabold tracking-wider text-white uppercase text-shadow">
-            <span class="text-[#00d2ff]">JUBAYER</span> CONTROL PANEL
+        <h1 class="text-3xl font-extrabold tracking-wider uppercase font-poppins bg-gradient-to-r from-cyan-400 via-pink-500 to-yellow-400 text-transparent bg-clip-text drop-shadow">
+            JUBAYER CONTROL PANEL
         </h1>
-        <p class="text-xs font-semibold tracking-widest text-[#627d98] uppercase mt-1 mb-3">
+        <p class="text-xs font-semibold tracking-widest text-[#a0aec0] uppercase mt-1 mb-5">
             Premium Cyber Infrastructure v3.0
         </p>
         
@@ -483,30 +553,26 @@ HTML_TEMPLATE = '''
             <a href="https://t.me/mr_ghost34" target="_blank" class="cyber-link-btn">
                 <i class="fa-brands fa-telegram text-base"></i> TELEGRAM CHANNEL
             </a>
-            <a href="https://t.me/jubayer_ahmed_34" target="_blank" class="cyber-link-btn" style="color: #00ffcc; border-color: rgba(0, 255, 204, 0.2); background: rgba(0, 255, 204, 0.05);">
+            <a href="https://t.me/jubayer_ahmed_34" target="_blank" class="cyber-link-btn" style="color: #00ffcc; border-color: rgba(0, 255, 204, 0.4); background: rgba(0, 255, 204, 0.05);">
                 <i class="fa-solid fa-address-card text-base"></i> CONTACT DEVELOPER
             </a>
         </div>
     </header>
 
-    <div class="grid grid-cols-3 gap-3 mb-6">
-        <div class="stat-box">
-            <div class="stat-val" id="activeSpamCount">0</div>
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="stat-box-1">
+            <div class="stat-val-1" id="activeSpamCount">0</div>
             <div class="stat-lbl">Active Spam</div>
         </div>
-        <div class="stat-box">
-            <div class="stat-val" id="autoSpamCount">0</div>
-            <div class="stat-lbl">Auto Spam</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-val" id="accCount">99</div>
-            <div class="stat-lbl">Connected</div>
+        <div class="stat-box-2">
+            <div class="stat-val-2" id="accCount">0</div>
+            <div class="stat-lbl">Connected Bots</div>
         </div>
     </div>
 
     <div class="w-full mb-6">
-        <button class="nav-tab active w-full py-2.5 px-2 flex items-center justify-center gap-1.5">
-            <i class="fa-solid fa-gamepad text-xs"></i> SPAM
+        <button class="nav-tab w-full py-3.5 px-2 flex items-center justify-center gap-2 uppercase shadow-lg">
+            <i class="fa-solid fa-gamepad text-sm animate-pulse"></i> Operational Core
         </button>
     </div>
 
@@ -514,117 +580,196 @@ HTML_TEMPLATE = '''
 
         <div class="cyber-panel">
             <div class="panel-title-bar">
-                <div class="panel-indicator"></div>
+                <div class="panel-indicator" style="background:#ff0080; box-shadow:0 0 10px #ff0080;"></div>
                 <i class="fa-solid fa-crosshairs text-[#ff3366]"></i>
-                <h2>JUBAYER UNLIMITED MODE</h2>
+                <h2 class="neon-text-magenta">JUBAYER UNLIMITED MODE</h2>
             </div>
             
             <div class="space-y-4">
-                <input type="text" id="targetUid" class="cyber-input" placeholder="Enter Target UID">
+                <input type="text" id="targetUid" class="cyber-input font-poppins text-center tracking-widest" placeholder="Enter Target UID" inputmode="numeric">
                 <input type="number" id="duration" class="cyber-input hidden" placeholder="Enter Duration (Minutes)">
                 
-                <button id="startBtn" class="btn-glow-cyan w-full py-3.5 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-play text-xs"></i> START OPERATION
+                <button id="startBtn" class="btn-glow-cyan w-full py-4 flex items-center justify-center gap-2 uppercase">
+                    <i class="fa-solid fa-play text-xs"></i> Start Operation
                 </button>
             </div>
             
-            <div id="startMessage" class="toast-box bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl p-3 mt-3 text-sm font-medium flex items-center gap-2"></div>
+            <div id="startMessage" class="toast-box bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl p-3 mt-3 text-sm font-medium flex items-center gap-2 font-poppins"></div>
         </div>
 
         <div class="cyber-panel">
             <div class="panel-title-bar">
-                <div class="panel-indicator" style="background:#ff0055; box-shadow:0 0 8px #ff0055;"></div>
-                <i class="fa-solid fa-octagon-xmark text-red-500"></i>
-                <h2>TERMINATION SYSTEM</h2>
+                <div class="panel-indicator" style="background:#00d2ff; box-shadow:0 0 10px #00d2ff;"></div>
+                <i class="fa-solid fa-satellite-dish text-[#00d2ff]"></i>
+                <h2 class="neon-text-cyan">JUBAYER ACTIVE PIPELINE</h2>
             </div>
-            
-            <div class="space-y-4">
-                <input type="text" id="stopTargetUid" class="cyber-input" placeholder="Enter UID to Stop">
-                
-                <button id="stopBtn" class="btn-glow-pink w-full py-3.5 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-square text-xs"></i> STOP OPERATION
-                </button>
-            </div>
-
-            <div id="stopMessage" class="toast-box bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl p-3 mt-3 text-sm font-medium flex items-center gap-2"></div>
-        </div>
-
-        <div class="cyber-panel">
-            <div class="panel-title-bar">
-                <div class="panel-indicator" style="background:#00d2ff; box-shadow:0 0 8px #00d2ff;"></div>
-                <i class="fa-solid fa-satellite-dish"></i>
-                <h2>JUBAYER ACTIVE PIPELINE</h2>
-            </div>
-            <div id="activeTargets" class="text-center text-sm text-gray-500 py-2 flex flex-col items-center gap-3">
-                <span class="flex items-center gap-2"><i class="fa-solid fa-mailbox"></i> No active vectors</span>
+            <div id="activeTargets" class="space-y-4">
+                <div class="text-center text-sm text-gray-500 py-4 flex flex-col items-center justify-center gap-2">
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-mailbox opacity-40"></i> No active vectors running</span>
+                </div>
             </div>
         </div>
 
         <div class="cyber-panel">
             <div class="panel-title-bar">
-                <div class="panel-indicator"></div>
-                <i class="fa-solid fa-robot"></i>
+                <div class="panel-indicator" style="background:#00ffcc; box-shadow:0 0 10px #00ffcc;"></div>
+                <i class="fa-solid fa-robot text-[#00ffcc]"></i>
                 <h2>CONNECTED JUBAYER BOTS</h2>
             </div>
-            <div class="panel-scroll overflow-y-auto max-h-[110px] space-y-2" id="accountList">
-                <div class="text-center text-sm text-gray-500 py-2 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-circle-notch animate-spin text-xs"></i> Scanning cluster cores...
+            <div class="panel-scroll overflow-y-auto max-h-[140px] space-y-2" id="accountList">
+                <div class="text-center text-sm text-gray-500 py-4 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-circle-notch animate-spin text-xs text-[#00ffcc]"></i> Scanning cluster cores...
                 </div>
             </div>
         </div>
 
     </div>
 
-    <footer class="mt-8 text-center text-[11px] font-semibold text-[#627d98] tracking-widest uppercase">
-        System Managed & Engineered By <span class="text-white font-bold">JUBAYER</span> &copy; 2026
+    <footer class="mt-10 mb-4 text-center text-[11px] font-semibold text-[#a0aec0] tracking-widest uppercase font-poppins">
+        System Managed & Engineered By <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-pink-500 font-bold">JUBAYER</span> &copy; 2026
     </footer>
 
     <script>
-        function triggerStopFromTarget(uid) {
-            document.getElementById('stopTargetUid').value = uid;
-            document.getElementById('stopBtn').click();
+        // Global Local Storage Profile Cache to prevent flickering
+        window.profileCache = {};
+
+        function fetchPlayerInfo(uid, callback) {
+            if (window.profileCache[uid]) {
+                callback(window.profileCache[uid]);
+                return;
+            }
+
+            // Step 1: Fetch Profile Base Meta Information
+            fetch(`https://dark-aura-info-api-v2.vercel.app/player-info?uid=${uid}`)
+                .then(res => res.json())
+                .then(data => {
+                    const basic = data.basicInfo || data.playerInfo || data.data || {};
+                    const nickname = basic.nickname || basic.name || 'Unknown Player';
+                    const level = basic.level !== undefined ? basic.level : '—';
+                    
+                    // Step 2: Fetch High Resolution Profile Image Frame Asset
+                    fetch(`https://banner-api-g7sh.vercel.app/profile?uid=${uid}`)
+                        .then(imgRes => {
+                            if(imgRes.ok && imgRes.headers.get('content-type')?.startsWith('image/')) {
+                                return imgRes.blob().then(blob => URL.createObjectURL(blob));
+                            }
+                            return imgRes.json().then(imgData => imgData.profilePic || imgData.avatar || null).catch(() => null);
+                        })
+                        .catch(() => null)
+                        .then(imgUrl => {
+                            const profileData = {
+                                nickname: nickname,
+                                level: level,
+                                banner: imgUrl || 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=500&q=80' // High Definition Default fallback
+                            };
+                            window.profileCache[uid] = profileData;
+                            callback(profileData);
+                        });
+                })
+                .catch(err => {
+                    console.error("API Profile Fetch Error:", err);
+                    callback({ nickname: 'Target Node', level: '—', banner: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=500&q=80' });
+                });
+        }
+
+        function triggerStopOperation(uid) {
+            fetch(`/stop_spam?uid=${encodeURIComponent(uid)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        showToastNotification('startMessage', data.error, true);
+                    } else {
+                        showToastNotification('startMessage', `Vector Disconnected: ${data.status}`);
+                        fetchStatus();
+                    }
+                })
+                .catch(err => showToastNotification('startMessage', 'Termination Request Failed', true));
         }
 
         function fetchStatus() {
             fetch('/api/status')
                 .then(res => res.json())
                 .then(data => {
-                    document.getElementById('accCount').innerText = data.connected_accounts;
+                    document.getElementById('accCount').innerText = data.connected_accounts || data.accounts?.length || 0;
                     document.getElementById('activeSpamCount').innerText = data.active_spam.length;
-                    document.getElementById('autoSpamCount').innerText = data.active_spam.length ? "1" : "0";
                     
+                    // Render Connected Clusters
                     const accListDiv = document.getElementById('accountList');
                     if (data.accounts && data.accounts.length) {
                         accListDiv.innerHTML = data.accounts.map(acc => `
-                            <div class="text-xs bg-[#091926] border border-[#142f44] px-4 py-2.5 rounded-full text-gray-300 flex items-center justify-between">
-                                <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[#00ffcc]"></span> JUBAYER_NODE</span>
-                                <span class="text-gray-400 font-mono">${acc}</span>
+                            <div class="text-xs bg-[#0d091f] border border-purple-900/40 px-4 py-3 rounded-full text-gray-300 flex items-center justify-between font-poppins">
+                                <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[#00ffcc] shadow-[0_0_6px_#00ffcc]"></span> JUBAYER_NODE</span>
+                                <span class="text-purple-300 font-mono font-medium">${acc}</span>
                             </div>
                         `).join('');
                     } else {
-                        accListDiv.innerHTML = '<div class="text-gray-500 text-sm text-center py-2"><i class="fa-solid fa-robot opacity-40 mr-1.5"></i> No active bot servers linked</div>';
+                        accListDiv.innerHTML = '<div class="text-gray-500 text-sm text-center py-3"><i class="fa-solid fa-robot opacity-40 mr-1.5"></i> No active cluster servers connected</div>';
                     }
 
+                    // Render Dynamic Target Cards into Active Pipeline
                     const targetsDiv = document.getElementById('activeTargets');
-                    if (data.active_spam.length) {
-                        targetsDiv.innerHTML = data.active_spam.map(t => `
-                            <div class="w-full bg-[#091926] border border-[#ff0055]/20 px-4 py-2 rounded-full flex items-center justify-between shadow-inner">
-                                <span class="flex items-center gap-2 text-xs text-gray-300 font-mono">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-[#ff0055] animate-pulse"></span> PIPELINE UID: ${t}
-                                </span>
-                                <button onclick="triggerStopFromTarget('${t}')" class="inline-stop-btn">
-                                    <i class="fa-solid fa-stop text-[8px] mr-1"></i> STOP
-                                </button>
-                            </div>
-                        `).join('');
+                    if (data.active_spam && data.active_spam.length) {
+                        targetsDiv.innerHTML = ''; // Reset parent Frame
+                        
+                        data.active_spam.forEach(uid => {
+                            const cardId = `card-vector-${uid}`;
+                            
+                            // Structured with Image Box on Top, Info Content Box exactly BELOW image, Stop Button adjusted perfectly
+                            targetsDiv.innerHTML += `
+                                <div id="${cardId}" class="vector-card flex flex-col gap-4">
+                                    <div class="vector-image-frame flex items-center justify-center">
+                                        <div id="loader-${uid}" class="absolute inset-0 flex items-center justify-center bg-[#02060b] text-[#00ffcc] text-xs font-poppins gap-2">
+                                            <i class="fa-solid fa-circle-notch animate-spin text-sm"></i> Rendering Clear Viewport...
+                                        </div>
+                                        <img id="img-view-${uid}" src="" alt="Player Banner Asset" style="display:none;" />
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between mt-1 pt-1 border-t border-white/5">
+                                        <div class="flex flex-col font-poppins text-left">
+                                            <span class="text-base font-bold text-[#00ffcc] tracking-wide" id="name-${uid}">Syncing Name...</span>
+                                            <div class="flex items-center gap-3 text-xs text-gray-400 font-semibold mt-1">
+                                                <span>UID: <span class="font-mono text-white font-medium">${uid}</span></span>
+                                                <span>•</span>
+                                                <span>LEVEL: <span id="lvl-${uid}" class="text-white font-bold">--</span></span>
+                                            </div>
+                                        </div>
+                                        
+                                        <button onclick="triggerStopOperation('${uid}')" class="vector-stop-btn uppercase font-poppins flex items-center gap-1.5">
+                                            <i class="fa-solid fa-hand text-[10px]"></i> Abort
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+
+                            // Trigger Fetch to seamlessly swap placeholder elements
+                            fetchPlayerInfo(uid, (profile) => {
+                                const nameEl = document.getElementById(`name-${uid}`);
+                                const lvlEl = document.getElementById(`lvl-${uid}`);
+                                const imgEl = document.getElementById(`img-view-${uid}`);
+                                const loaderEl = document.getElementById(`loader-${uid}`);
+
+                                if (nameEl) nameEl.innerText = profile.nickname;
+                                if (lvlEl) lvlEl.innerText = profile.level;
+                                if (imgEl && profile.banner) {
+                                    imgEl.src = profile.banner;
+                                    imgEl.onload = () => {
+                                        if (loaderEl) loaderEl.style.display = 'none';
+                                        imgEl.style.display = 'block';
+                                    };
+                                    imgEl.onerror = () => {
+                                        if (loaderEl) loaderEl.innerHTML = `<i class="fa-solid fa-image-user text-gray-600 text-lg"></i>`;
+                                    };
+                                }
+                            });
+                        });
                     } else {
-                        targetsDiv.innerHTML = '<span class="text-gray-500 text-sm flex items-center gap-2 py-2"><i class="fa-solid fa-envelope-open opacity-40"></i> No active vectors running</span>';
+                        targetsDiv.innerHTML = '<div class="text-gray-500 text-sm text-center py-4 flex flex-col items-center justify-center gap-2"><span class="flex items-center gap-2"><i class="fa-solid fa-envelope-open opacity-40"></i> No active pipeline clusters running</span></div>';
                     }
                 })
                 .catch(err => console.error(err));
         }
 
-        function showMessage(elementId, text, isError = false) {
+        function showToastNotification(elementId, text, isError = false) {
             const el = document.getElementById(elementId);
             el.innerHTML = isError 
                 ? `<i class="fa-solid fa-triangle-exclamation"></i> <span>${text}</span>` 
@@ -646,50 +791,38 @@ HTML_TEMPLATE = '''
             const uid = document.getElementById('targetUid').value.trim();
             const duration = document.getElementById('duration').value.trim();
             if (!uid) {
-                showMessage('startMessage', 'Bhai, please target UID input karo!', true);
+                showToastNotification('startMessage', 'Bhai, please target UID input karo!', true);
                 return;
             }
+            if (!/^\d+$/.test(uid)) {
+                showToastNotification('startMessage', 'UID oboshshoi number hote hobe!', true);
+                return;
+            }
+            
             const url = `/start_spam?uid=${encodeURIComponent(uid)}` + (duration ? `&duration=${parseInt(duration)}` : '');
             fetch(url)
                 .then(res => res.json())
                 .then(data => {
                     if (data.error) {
-                        showMessage('startMessage', data.error, true);
+                        showToastNotification('startMessage', data.error, true);
                     } else {
-                        showMessage('startMessage', `JUBAYER Core Deploy: ${data.status}`);
+                        showToastNotification('startMessage', `JUBAYER Core Deploy Success: Active`);
                         document.getElementById('targetUid').value = '';
                         fetchStatus();
                     }
                 })
-                .catch(err => showMessage('startMessage', 'Server Transmission Failed', true));
+                .catch(err => showToastNotification('startMessage', 'Server Transmission Failed', true));
         };
 
-        document.getElementById('stopBtn').onclick = () => {
-            const uid = document.getElementById('stopTargetUid').value.trim();
-            if (!uid) {
-                showMessage('stopMessage', 'Bhai, stop korar jonno UID oboshshoi dorkar!', true);
-                return;
-            }
-            fetch(`/stop_spam?uid=${encodeURIComponent(uid)}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.error) {
-                        showMessage('stopMessage', data.error, true);
-                    } else {
-                        showMessage('stopMessage', `JUBAYER Core Aborted: ${data.status}`);
-                        document.getElementById('stopTargetUid').value = '';
-                        fetchStatus();
-                    }
-                })
-                .catch(err => showMessage('stopMessage', 'Server Transmission Failed', true));
-        };
-
-        // Initialize Continuous Grid Synchronizer
+        // Initialize Continuous Grid Synchronizer Loop (Updates every 3 seconds)
         fetchStatus();
         setInterval(fetchStatus, 3000);
     </script>
 </body>
 </html>
+
+
+
 
 '''
 
@@ -747,7 +880,7 @@ if __name__ == '__main__':
     threading.Thread(target=start_all_accounts, daemon=True).start()
     
     # Render-এর দেওয়া PORT খুঁজে নেওয়া, না থাকলে ডিফল্ট ৫০০০ ব্যবহার করা
-    port = int(os.environ.get("PORT", 5001))
+    port = int(os.environ.get("PORT", 5000))
     
     # পোর্ট ভেরিয়েবলটি এখানে পাস করুন
     app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)

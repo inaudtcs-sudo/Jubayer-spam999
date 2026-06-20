@@ -1,4 +1,4 @@
-import requests , os , psutil , sys , jwt , pickle , json , binascii , time , urllib3 , base64 , datetime , re , socket , threading , ssl , pytz , aiohttp
+import requests , os , psutil , sys , jwt , pickle , json , binascii , time , urllib3 , base64 , datetime , re , socket , threading , ssl , pytz , aiohttp, asyncio
 from protobuf_decoder.protobuf_decoder import Parser
 from Functions import * ; from xHeaders import *
 from datetime import datetime
@@ -10,15 +10,17 @@ from cfonts import render, say
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)  
 
-
 Chat_Leave = False
 joining_team = False
-login_url , ob , version = AuToUpDaTE()
-login_url = "https://loginbp.ggpolarbear.com"
 
+# main.py এর মতো নতুন ও কার্যকরী লগইন ইউআরএল এবং অবজেক্ট সেটআপ
+login_url = "https://loginbp.ggblueshark.com"
+ob = "OB53"
+version = "1.123.1"
 
+# main.py এর নতুন Headers কনফিগারেশন
 Hr = {
-    'User-Agent': Uaa(),
+    'User-Agent': "Dalvik/2.1.0 (Linux; U; Android 11; ASUS_Z01QD Build/PI)",
     'Connection': "Keep-Alive",
     'Accept-Encoding': "gzip",
     'Content-Type': "application/x-www-form-urlencoded",
@@ -28,7 +30,6 @@ Hr = {
     'ReleaseVersion': ob}
 
 # ---- Random Colores ----
-
 def get_random_color():
     colors = [
         "[FF0000]", "[00FF00]", "[0000FF]", "[FFFF00]", "[FF00FF]", "[00FFFF]", "[FFFFFF]", "[FFA500]",
@@ -66,20 +67,34 @@ async def GeNeRaTeAccEss(uid , password):
         "client_type": "2",
         "client_secret": "2ee44819e9b4598845141067b281621874d0d5d7af9d8f7e00c1e54715b7d1e3",
         "client_id": "100067"}
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, headers=Hr, data=data) as response:
-            if response.status != 200: return await response.read()
-            data = await response.json()
-            open_id = data.get("open_id")
-            access_token = data.get("access_token")
-            return (open_id, access_token) if open_id and access_token else (None, None)
+    
+    attempt = 1
+    while True:
+        print(f"[+] Connecting to Garena... Attempt {attempt} for UID: {uid}")
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, headers=headers, data=data, timeout=15) as response:
+                    if response.status == 200:
+                        res_json = await response.json()
+                        open_id = res_json.get("open_id")
+                        access_token = res_json.get("access_token")
+                        if open_id and access_token:
+                            print(f"[+] Login Successful on Attempt {attempt}!")
+                            return (open_id, access_token)
+                    
+                    print(f"[-] Attempt {attempt} failed (Status: {response.status}). Retrying in 5 seconds...")
+        except Exception as e:
+            print(f"[-] Network Error on attempt {attempt}: {e}. Retrying in 5 seconds...")
+        
+        attempt += 1
+        await asyncio.sleep(5)  # ৫ সেকেন্ড অপেক্ষা করে আবার চেষ্টা করবে
 
 async def EncRypTMajoRLoGin(open_id, access_token):
     major_login = MajoRLoGinrEq_pb2.MajorLogin()
     major_login.event_time = str(datetime.now())[:-7]
     major_login.game_name = "free fire"
     major_login.platform_id = 1
-    major_login.client_version = '2.124.1'
+    major_login.client_version = version  
     major_login.system_software = "Android OS 9 / API-28 (PQ3B.190801.10101846/G9650ZHU2ARC6)"
     major_login.system_hardware = "Handheld"
     major_login.telecom_operator = "Verizon"
@@ -120,7 +135,7 @@ async def EncRypTMajoRLoGin(open_id, access_token):
     major_login.channel_type = 3
     major_login.cpu_type = 2
     major_login.cpu_architecture = "64"
-    major_login.client_version_code = "2019118695"
+    major_login.client_version_code = "2019116753"  
     major_login.graphics_api = "OpenGLES2"
     major_login.supported_astc_bitset = 16383
     major_login.login_open_id_type = 4
@@ -193,11 +208,6 @@ async def xAuThSTarTuP(TarGeT, token, timestamp, key, iv):
     elif uid_length == 7: headers = '000000000'
     else: print('Unexpected length') ; headers = '0000000'
     return f"0115{headers}{uid_hex}{encrypted_timestamp}00000{encrypted_packet_length}{encrypted_packet}"
-     
-
-
-
-
 
 class CLIENT:
     def __init__(self):
@@ -219,6 +229,7 @@ class CLIENT:
         self.ChaTiP = None
         self.ChaTporT = None
         self.LoGinDaTaUncRypTinG = None
+        self.region = None  
 
         self.response = None
         self.uid = None
@@ -227,6 +238,8 @@ class CLIENT:
         self.inPuTMsG = None
         self.insquad = None
         self.sent_inv = None
+        self.JWT = None
+
     async def cHTypE(self,H):
         if not H: return 'Squid'
         elif H == 1: return 'CLan'
@@ -245,7 +258,7 @@ class CLIENT:
         else: return 'UnsoPorTed TypE ! >> ErrrroR (:():)' 
            
     async def TcPOnLine(self,ip, port, key, iv, AutHToKen, reconnect_delay=0.5):
-        global  spam_room , spammer_uid , spam_chat_id , spam_uid , XX , uid , Spy, Chat_Leave , joining_team
+        global spam_room , spammer_uid , spam_chat_id , spam_uid , XX , uid , Spy, Chat_Leave , joining_team
         while True:
             try:
                 reader , writer = await asyncio.open_connection(ip, int(port))
@@ -255,15 +268,12 @@ class CLIENT:
                 await self.online_writer.drain()
                 while True:
                     self.data2 = await reader.read(9999)
-                    #print(self.data2.hex())
                     data2 = self.data2
                     if not data2: break
                     
                     if self.data2:
-
                         if self.data2.hex().startswith("0f00"):
                             info = await DeCode_PackEt(self.data2.hex()[10:])
-                            #print(info)
                             self.STATUS = get_player_status(info)
                             print(self.STATUS)
                             if "IN_ROOM" in self.STATUS:
@@ -280,21 +290,12 @@ class CLIENT:
                             P = await self.SEndMsG(2 , message , uid , chat_id , key , iv)
                             await self.SEndPacKeT(self.whisper_writer , self.online_writer , 'ChaT' , P)
 
-
-
-                            
-                        #print(self.data2.hex())
                         if self.data2.hex().startswith("0500") and self.insquad is None and joining_team == False:
-                            
                             packet = await DeCode_PackEt(self.data2.hex()[10:])
                             packet = json.loads(packet)
-
-
-                                
                             try:
                                 invite_uid = packet['5']['data']['2']['data']['1']['data']
                                 squad_owner = packet['5']['data']['1']['data']
-
                                 squad_code = packet['5']['data']['8']['data']
 
                                 RefUse = await RedZedRefuse(squad_owner,invite_uid, key,iv)
@@ -302,7 +303,6 @@ class CLIENT:
                                 SendInv = await RedZed_SendInv(invite_uid,key,iv)
                                 await self.SEndPacKeT(self.whisper_writer , self.online_writer , 'OnLine' , SendInv)
                                 self.insquad = False
-                                    
                             except:
                                 continue
                             if self.insquad == False:
@@ -310,31 +310,25 @@ class CLIENT:
                                 await self.SEndPacKeT(self.whisper_writer , self.online_writer , 'OnLine' , Join)
                                 self.insquad = True
 
-                        
-
                         if self.data2.hex().startswith('0500') and len(self.data2.hex()) > 1000 and joining_team:
                             try:
-
                                 packet = await DeCode_PackEt(self.data2.hex()[10:])
-
                                 packet = json.loads(packet)
                                 OwNer_UiD , CHaT_CoDe , SQuAD_CoDe = await GeTSQDaTa(packet)
                                 JoinCHaT = await AutH_Chat(3 , OwNer_UiD , CHaT_CoDe, key,iv)
                                 await self.SEndPacKeT(self.whisper_writer , self.online_writer , 'ChaT' , JoinCHaT)
-                                message = f'[B][C]{get_random_color()}\n- WeLComE To Emote Bot ! \n\n{get_random_color()}- Commands : @a {xMsGFixinG('123456789')} {xMsGFixinG('909000001')}\n\n[00FF00]Dev : @{xMsGFixinG('redzedking')}'
+                                message = f'[B][C]{get_random_color()}\n- WeLComE To Emote Bot ! \n\n{get_random_color()}- Commands : @a {xMsGFixinG("123456789")} {xMsGFixinG("909000001")}\n\n[00FF00]Dev : @{xMsGFixinG("redzedking")}'
                                 P = await self.SEndMsG(0 , message , OwNer_UiD , OwNer_UiD , key , iv)
                                 await self.SEndPacKeT(self.whisper_writer , self.online_writer , 'ChaT' , P)
                             except:
                                 if self.data2.hex().startswith('0500') and len(self.data2.hex()) > 1000:
                                     try:
-
                                         packet = await DeCode_PackEt(self.data2.hex()[10:])
-
                                         packet = json.loads(packet)
                                         OwNer_UiD , CHaT_CoDe , SQuAD_CoDe = await GeTSQDaTa(packet)
                                         JoinCHaT = await AutH_Chat(3 , OwNer_UiD , CHaT_CoDe, key,iv)
                                         await self.SEndPacKeT(self.whisper_writer , self.online_writer , 'ChaT' , JoinCHaT)
-                                        message = f'[B][C]{get_random_color()}\n- WeLComE To Emote Bot ! \n\n{get_random_color()}- Commands : @a {xMsGFixinG('123456789')} {xMsGFixinG('909000001')}\n\n[00FF00]Dev : @{xMsGFixinG('redzedking')}'
+                                        message = f'[B][C]{get_random_color()}\n- WeLComE To Emote Bot ! \n\n{get_random_color()}- Commands : @a {xMsGFixinG("123456789")} {xMsGFixinG("909000001")}\n\n[00FF00]Dev : @{xMsGFixinG("redzedking")}'
                                         P = await self.SEndMsG(0 , message , OwNer_UiD , OwNer_UiD , key , iv)
                                         await self.SEndPacKeT(self.whisper_writer , self.online_writer , 'ChaT' , P)
                                     except:
@@ -361,14 +355,10 @@ class CLIENT:
 
                 self.insquad = None
 
-
-
-
             except Exception as e: print(f"- ErroR With {ip}:{port} - {e}") ; self.online_writer = None
             await asyncio.sleep(reconnect_delay)
                                 
     async def TcPChaT(self,ip, port, AutHToKen, key, iv, LoGinDaTaUncRypTinG, ready_event, reconnect_delay=0.5):
-
         global spam_room, spammer_uid , spam_chat_id , spam_uid , chat_id , uid , Spy, Chat_Leave , joining_team
         while True:
             try:
@@ -390,13 +380,9 @@ class CLIENT:
                     self.data = await reader.read(9999)
                     data=self.data
 
-
                     if not data: break
 
-
-
                     if data.hex().startswith("120000"):
-
                         msg = await DeCode_PackEt(data.hex()[10:])
                         chatdata = json.loads(msg)
                         try:
@@ -408,7 +394,6 @@ class CLIENT:
                         except:
                             self.response = None
 
-
                         if self.response:
                             if self.inPuTMsG.startswith('/mq'):
                                 for i in range(100):
@@ -416,7 +401,6 @@ class CLIENT:
                                     await asyncio.sleep(0.00003)
                             if self.inPuTMsG.startswith('/room'):
                                 parts = self.inPuTMsG.strip().split()
-
                                 if len(parts) < 3:
                                     message = f"[B][C]{get_random_color()}Use The Command like this : /room uid {xMsGFixinG('password')} !"
                                     P = await self.SEndMsG(self.response.Data.chat_type , message , uid , chat_id , key , iv)
@@ -425,7 +409,6 @@ class CLIENT:
                                 uid_room = parts[1].strip()
                                 self.room_uid = uid_room
                                 password = parts[2].strip()
-
 
                                 Join = await RedZedJoinRomm(uid_room,password,key,iv)
                                 await self.SEndPacKeT(self.whisper_writer , self.online_writer , 'OnLine', Join)
@@ -451,17 +434,14 @@ class CLIENT:
                                     message = f"[B][C]{get_random_color()}\n\nAccepT My InV FasT\n\n"
                                     P = await self.SEndMsG(self.response.Data.chat_type , message , uid , chat_id , key , iv)
                                     await self.SEndPacKeT(self.whisper_writer , self.online_writer , 'ChaT' , P)
-                                    PAc = await OpEnSq(key , iv)
+                                    
+                                    PAc = await OpEnSq(key , iv, self.region)
                                     await self.SEndPacKeT(self.whisper_writer , self.online_writer , 'OnLine' , PAc)
 
-
-
-
-
-                                    C = await cHSq(5, uid ,key, iv)
+                                    C = await cHSq(5, uid ,key, iv, self.region)
                                     await asyncio.sleep(0.5)
                                     await self.SEndPacKeT(self.whisper_writer , self.online_writer , 'OnLine' , C)
-                                    V = await SEnd_InV(5 , uid , key , iv)
+                                    V = await SEnd_InV(5 , uid , key , iv, self.region)
                                     await asyncio.sleep(0.5)
                                     await self.SEndPacKeT(self.whisper_writer , self.online_writer , 'OnLine' , V)
                                     E = await ExiT(None , key , iv)
@@ -470,14 +450,13 @@ class CLIENT:
                                 except Exception as e:
                                     print('msg in squad' , str(e))
 
-
                             if self.inPuTMsG.startswith('/inv'):
                                 try:
                                     parts = self.inPuTMsG.strip().split()
                                     uid = int(parts[1])
                                 except:
                                     pass
-                                V = await SEnd_InV(5 , uid , key , iv)
+                                V = await SEnd_InV(5 , uid , key , iv, self.region)
                                 await asyncio.sleep(0.5)
                                 await self.SEndPacKeT(self.whisper_writer , self.online_writer , 'OnLine' , V)
                             if self.inPuTMsG.startswith('/x/'):
@@ -488,17 +467,9 @@ class CLIENT:
                                     print('msg in private')
                                     EM = await GenJoinSquadsPacket(CodE , key , iv)
                                     joining_team = True
-                                    #print(EM , list[key] , list[iv])
                                     await self.SEndPacKeT(self.whisper_writer, self.online_writer, 'OnLine' , EM)
-
-
                                 except Exception as e:
                                     print('msg in squad',str(e))
-
-                            #if self.inPuTMsG.startswith('leave'):
-                            #    leave = await ExiT(uid,key,iv)
-                            #    await self.SEndPacKeT(self.whisper_writer , self.online_writer , 'OnLine' , leave)
-                            #    self.insquad = None
 
                             if self.inPuTMsG.strip().startswith('/status'):
                                 parts = self.inPuTMsG.strip().split()
@@ -507,32 +478,25 @@ class CLIENT:
                                     uidINFO = uidINFO.replace("***", "106")
                                 await self.SEndPacKeT(self.whisper_writer , self.online_writer , 'OnLine' , await SendInFoPaCKeT(uidINFO,key,iv))
                                 
-
                             if self.inPuTMsG.strip().startswith('/s'):
                                 EM = await FS(key , iv)
                                 await self.SEndPacKeT(self.whisper_writer, self.online_writer, 'OnLine' , EM)
 
                             if self.inPuTMsG.strip().startswith('@a'):
-
                                 try:
                                     dd = chatdata['5']['data']['16']
                                     print('msg in private')
                                     message = f"[B][C]{get_random_color()}\n\nOnLy In SQuaD ! \n\n"
                                     P = await self.SEndMsG(self.response.Data.chat_type, message, uid, uid, key, iv)
                                     await self.SEndPacKeT(self.whisper_writer, self.online_writer, 'ChaT', P)
-
                                 except:
                                     print('msg in squad')
-
                                     parts = self.inPuTMsG.strip().split()
-
                                     message = f'[B][C]{get_random_color()}\nACITVE TarGeT -> {xMsGFixinG(uid)}\n'
-
                                     P = await self.SEndMsG(self.response.Data.chat_type, message, uid, chat_id, key, iv)
 
                                     uid2 = uid3 = uid4 = uid5 = None
                                     s = False
-
                                     try:
                                         uid = int(parts[1])
                                         uid2 = int(parts[2])
@@ -540,41 +504,34 @@ class CLIENT:
                                         uid4 = int(parts[4])
                                         uid5 = int(parts[5])
                                         idT = int(parts[5])
-
                                     except ValueError as ve:
                                         print("ValueError:", ve)
                                         s = True
-
                                     except Exception:
                                         idT = len(parts) - 1
                                         idT = int(parts[idT])
-                                        print(idT)
-                                        print(uid)
 
                                     if not s:
                                         try:
                                             await self.SEndPacKeT(self.whisper_writer, self.online_writer, 'ChaT', P)
-
-                                            H = await Emote_k(uid, idT, key, iv)
+                                            
+                                            H = await Emote_k(uid, idT, key, iv, self.region)
                                             await self.SEndPacKeT(self.whisper_writer, self.online_writer, 'OnLine', H)
 
                                             if uid2:
-                                                H = await Emote_k(uid2, idT, key, iv)
+                                                H = await Emote_k(uid2, idT, key, iv, self.region)
                                                 await self.SEndPacKeT(self.whisper_writer, self.online_writer, 'OnLine', H)
                                             if uid3:
-                                                H = await Emote_k(uid3, idT, key, iv)
+                                                H = await Emote_k(uid3, idT, key, iv, self.region)
                                                 await self.SEndPacKeT(self.whisper_writer, self.online_writer, 'OnLine', H)
                                             if uid4:
-                                                H = await Emote_k(uid4, idT, key, iv)
+                                                H = await Emote_k(uid4, idT, key, iv, self.region)
                                                 await self.SEndPacKeT(self.whisper_writer, self.online_writer, 'OnLine', H)
                                             if uid5:
-                                                H = await Emote_k(uid5, idT, key, iv)
+                                                H = await Emote_k(uid5, idT, key, iv, self.region)
                                                 await self.SEndPacKeT(self.whisper_writer, self.online_writer, 'OnLine', H)
-                                            
-
                                         except Exception as e:
                                             pass
-
 
                             if self.inPuTMsG in ("hi" , "hello" , "fin" , "fen" , "wach", "slm", "cc", "salam"):
                                 uid = self.response.Data.uid
@@ -583,10 +540,6 @@ class CLIENT:
                                 P = await self.SEndMsG(self.response.Data.chat_type , message , uid , chat_id , key , iv)
                                 await self.SEndPacKeT(self.whisper_writer , self.online_writer , 'ChaT' , P)
                             self.response = None
-
-
-
-
 
                 if self.whisper_writer is not None:
                     try:
@@ -607,28 +560,20 @@ class CLIENT:
                         self.online_writer = None
 
                 self.insquad = None
-
-#
-#               self.whisper_writer.close() ; await self.whisper_writer.wait_closed() ; self.whisper_writer = None
-#               self.online_writer.close() ; await self.online_writer.wait_closed() ; self.online_writer = None
-#               self.insquad = None
                         
-                            
-                            
             except Exception as e: print(f"ErroR {ip}:{port} - {e}");self.whisper_writer = None
             await asyncio.sleep(reconnect_delay)
-
 
     async def restart(self,task1,task2):
         while True:
             if self.online_writer and self.whisper_writer == None:
                 await asyncio.gather(task1 , task2)
+                
     async def MaiiiinE(self):
-        Uid , Pw = '4733012513','xMaSrY_0L6kklIp_3wt'
+        Uid , Pw = '5240743519','BFD20BEBC1E0D1184981D3538675935F8A620CCD4EA23500DBE62CAEF79F5BF4'
         
+        # এখানে রিট্রাই লুপের কারণে এটি সফল না হওয়া পর্যন্ত চলতেই থাকবে
         open_id , access_token = await GeNeRaTeAccEss(Uid , Pw)
-
-        if not open_id or not access_token: print("ErroR - InvaLid AccounT") ; return None
         
         PyL = await EncRypTMajoRLoGin(open_id , access_token)
         MajoRLoGinResPonsE = await MajorLogin(PyL)
@@ -642,6 +587,7 @@ class CLIENT:
         print(UrL)
         print(ToKen)
         self.JWT = ToKen
+        self.region = MajoRLoGinauTh.region  
         TarGeT = MajoRLoGinauTh.account_uid
         key = MajoRLoGinauTh.key
         iv = MajoRLoGinauTh.iv
@@ -657,6 +603,9 @@ class CLIENT:
         ChaTPorTs = LoGinDaTaUncRypTinG.AccountIP_Port
         self.OnLineiP , self.OnLineporT = OnLinePorTs.split(":")
         ChaTiP , ChaTporT = ChaTPorTs.split(":")
+        
+        equie_emote(ToKen, UrL)
+        
         AutHToKen = await xAuThSTarTuP(int(TarGeT) , ToKen , int(timestamp) , key , iv)
         ready_event = asyncio.Event()
         
@@ -666,9 +615,8 @@ class CLIENT:
         await ready_event.wait()
         await asyncio.sleep(1)
         task2 = asyncio.create_task(self.TcPOnLine(self.OnLineiP , self.OnLineporT , key , iv , AutHToKen))
-        #os.system('cls') if os.name == 'nt' else os.system('clear')
+        
         print(render('REDZED', colors=['white', 'red'], align='center'))
-        #equipe_emote(ToKen)
         print(f" - SerVeR LoGiN UrL => {login_url} | SerVer Url => {UrL}\n")
         print(f" - GaMe sTaTus > Good | OB => {ob} | Version => {version}\n")
         print(f" - BoT STarTinG And OnLine on TarGet : {AccountName} , UiD : {TarGeT} | ReGioN => {ReGioN}\n")
@@ -676,8 +624,6 @@ class CLIENT:
 
         await asyncio.gather(task1 , task2)
         await self.restart(self,task1,task2)
-
-
 
 client = CLIENT()
 async def StarTinG():
