@@ -630,7 +630,6 @@ HTML_TEMPLATE = '''
     </footer>
 
     <script>
-        // Global Local Storage Profile Cache to prevent flickering
         window.profileCache = {};
 
         function fetchPlayerInfo(uid, callback) {
@@ -639,7 +638,6 @@ HTML_TEMPLATE = '''
                 return;
             }
 
-            // Step 1: Fetch Profile Base Meta Information
             fetch(`https://dark-aura-info-api-v2.vercel.app/player-info?uid=${uid}`)
                 .then(res => res.json())
                 .then(data => {
@@ -647,7 +645,6 @@ HTML_TEMPLATE = '''
                     const nickname = basic.nickname || basic.name || 'Unknown Player';
                     const level = basic.level !== undefined ? basic.level : '—';
                     
-                    // Step 2: Fetch High Resolution Profile Image Frame Asset
                     fetch(`https://banner-api-g7sh.vercel.app/profile?uid=${uid}`)
                         .then(imgRes => {
                             if(imgRes.ok && imgRes.headers.get('content-type')?.startsWith('image/')) {
@@ -660,7 +657,7 @@ HTML_TEMPLATE = '''
                             const profileData = {
                                 nickname: nickname,
                                 level: level,
-                                banner: imgUrl || 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=500&q=80' // High Definition Default fallback
+                                banner: imgUrl || 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=500&q=80'
                             };
                             window.profileCache[uid] = profileData;
                             callback(profileData);
@@ -706,67 +703,92 @@ HTML_TEMPLATE = '''
                         accListDiv.innerHTML = '<div class="text-gray-500 text-sm text-center py-3"><i class="fa-solid fa-robot opacity-40 mr-1.5"></i> No active cluster servers connected</div>';
                     }
 
-                    // Render Dynamic Target Cards into Active Pipeline
+                    // Smart Render Logic for Active Targets Pipeline
                     const targetsDiv = document.getElementById('activeTargets');
-                    if (data.active_spam && data.active_spam.length) {
-                        targetsDiv.innerHTML = ''; // Reset parent Frame
-                        
-                        data.active_spam.forEach(uid => {
+                    const activeSpam = data.active_spam || [];
+
+                    if (activeSpam.length > 0) {
+                        // Remove placeholder if it exists
+                        const placeholder = targetsDiv.querySelector('.text-center.text-gray-500');
+                        if (placeholder) placeholder.remove();
+
+                        // 1. Delete cards from DOM that are no longer in active_spam list
+                        const currentCards = targetsDiv.querySelectorAll('.vector-card');
+                        currentCards.forEach(card => {
+                            const cardUid = card.id.replace('card-vector-', '');
+                            if (!activeSpam.includes(cardUid)) {
+                                card.remove();
+                            }
+                        });
+
+                        // 2. Add new cards safely without rewriting the existing ones
+                        activeSpam.forEach(uid => {
                             const cardId = `card-vector-${uid}`;
+                            let cardEl = document.getElementById(cardId);
                             
-                            // Structured with Image Box on Top, Info Content Box exactly BELOW image, Stop Button adjusted perfectly
-                            targetsDiv.innerHTML += `
-                                <div id="${cardId}" class="vector-card flex flex-col gap-4">
-                                    <div class="vector-image-frame flex items-center justify-center">
-                                        <div id="loader-${uid}" class="absolute inset-0 flex items-center justify-center bg-[#02060b] text-[#00ffcc] text-xs font-poppins gap-2">
-                                            <i class="fa-solid fa-circle-notch animate-spin text-sm"></i> Rendering Clear Viewport...
-                                        </div>
-                                        <img id="img-view-${uid}" src="" alt="Player Banner Asset" style="display:none;" />
-                                    </div>
-                                    
-                                    <div class="flex items-center justify-between mt-1 pt-1 border-t border-white/5">
-                                        <div class="flex flex-col font-poppins text-left">
-                                            <span class="text-base font-bold text-[#00ffcc] tracking-wide" id="name-${uid}">Syncing Name...</span>
-                                            <div class="flex items-center gap-3 text-xs text-gray-400 font-semibold mt-1">
-                                                <span>UID: <span class="font-mono text-white font-medium">${uid}</span></span>
-                                                <span>•</span>
-                                                <span>LEVEL: <span id="lvl-${uid}" class="text-white font-bold">--</span></span>
+                            if (!cardEl) {
+                                const newCardHtml = `
+                                    <div id="${cardId}" class="vector-card flex flex-col gap-4">
+                                        <div class="vector-image-frame flex items-center justify-center">
+                                            <div id="loader-${uid}" class="absolute inset-0 flex items-center justify-center bg-[#02060b] text-[#00ffcc] text-xs font-poppins gap-2">
+                                                <i class="fa-solid fa-circle-notch animate-spin text-sm"></i> Rendering Clear Viewport...
                                             </div>
+                                            <img id="img-view-${uid}" src="" alt="Player Banner Asset" style="display:none;" />
                                         </div>
                                         
-                                        <button onclick="triggerStopOperation('${uid}')" class="vector-stop-btn uppercase font-poppins flex items-center gap-1.5">
-                                            <i class="fa-solid fa-hand text-[10px]"></i> Abort
-                                        </button>
+                                        <div class="flex items-center justify-between mt-1 pt-1 border-t border-white/5">
+                                            <div class="flex flex-col font-poppins text-left">
+                                                <span class="text-base font-bold text-[#00ffcc] tracking-wide" id="name-${uid}">Syncing Name...</span>
+                                                <div class="flex items-center gap-3 text-xs text-gray-400 font-semibold mt-1">
+                                                    <span>UID: <span class="font-mono text-white font-medium">${uid}</span></span>
+                                                    <span>•</span>
+                                                    <span>LEVEL: <span id="lvl-${uid}" class="text-white font-bold">--</span></span>
+                                                </div>
+                                            </div>
+                                            
+                                            <button onclick="triggerStopOperation('${uid}')" class="vector-stop-btn uppercase font-poppins flex items-center gap-1.5">
+                                                <i class="fa-solid fa-hand text-[10px]"></i> Abort
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            `;
+                                `;
+                                targetsDiv.insertAdjacentHTML('beforeend', newCardHtml);
 
-                            // Trigger Fetch to seamlessly swap placeholder elements
-                            fetchPlayerInfo(uid, (profile) => {
-                                const nameEl = document.getElementById(`name-${uid}`);
-                                const lvlEl = document.getElementById(`lvl-${uid}`);
-                                const imgEl = document.getElementById(`img-view-${uid}`);
-                                const loaderEl = document.getElementById(`loader-${uid}`);
+                                // Fetch player info EXACTLY ONCE when card is freshly added
+                                fetchPlayerInfo(uid, (profile) => {
+                                    const nameEl = document.getElementById(`name-${uid}`);
+                                    const lvlEl = document.getElementById(`lvl-${uid}`);
+                                    const imgEl = document.getElementById(`img-view-${uid}`);
+                                    const loaderEl = document.getElementById(`loader-${uid}`);
 
-                                if (nameEl) nameEl.innerText = profile.nickname;
-                                if (lvlEl) lvlEl.innerText = profile.level;
-                                if (imgEl && profile.banner) {
-                                    imgEl.src = profile.banner;
-                                    imgEl.onload = () => {
-                                        if (loaderEl) loaderEl.style.display = 'none';
-                                        imgEl.style.display = 'block';
-                                    };
-                                    imgEl.onerror = () => {
-                                        if (loaderEl) loaderEl.innerHTML = `<i class="fa-solid fa-image-user text-gray-600 text-lg"></i>`;
-                                    };
-                                }
-                            });
+                                    if (nameEl) nameEl.innerText = profile.nickname;
+                                    if (lvlEl) lvlEl.innerText = profile.level;
+                                    if (imgEl && profile.banner) {
+                                        imgEl.src = profile.banner;
+                                        imgEl.onload = () => {
+                                            if (loaderEl) loaderEl.style.display = 'none';
+                                            imgEl.style.display = 'block';
+                                        };
+                                        imgEl.onerror = () => {
+                                            if (loaderEl) loaderEl.innerHTML = `<i class="fa-solid fa-image-user text-gray-600 text-lg"></i>`;
+                                        };
+                                    }
+                                });
+                            }
                         });
+                        
+                        if (targetsDiv.children.length === 0) {
+                            showEmptyPipelinePlaceholder(targetsDiv);
+                        }
                     } else {
-                        targetsDiv.innerHTML = '<div class="text-gray-500 text-sm text-center py-4 flex flex-col items-center justify-center gap-2"><span class="flex items-center gap-2"><i class="fa-solid fa-envelope-open opacity-40"></i> No active pipeline clusters running</span></div>';
+                        showEmptyPipelinePlaceholder(targetsDiv);
                     }
                 })
                 .catch(err => console.error(err));
+        }
+
+        function showEmptyPipelinePlaceholder(container) {
+            container.innerHTML = '<div class="text-center text-sm text-gray-500 py-4 flex flex-col items-center justify-center gap-2"><span class="flex items-center gap-2"><i class="fa-solid fa-envelope-open opacity-40"></i> No active pipeline clusters running</span></div>';
         }
 
         function showToastNotification(elementId, text, isError = false) {
@@ -814,7 +836,6 @@ HTML_TEMPLATE = '''
                 .catch(err => showToastNotification('startMessage', 'Server Transmission Failed', true));
         };
 
-        // Initialize Continuous Grid Synchronizer Loop (Updates every 3 seconds)
         fetchStatus();
         setInterval(fetchStatus, 3000);
     </script>
