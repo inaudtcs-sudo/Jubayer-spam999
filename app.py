@@ -290,6 +290,9 @@ HTML_TEMPLATE = '''
         .neon-text-magenta {
             text-shadow: 0 0 10px rgba(255, 0, 127, 0.6), 0 0 20px rgba(255, 0, 127, 0.3);
         }
+        .neon-text-yellow {
+            text-shadow: 0 0 10px rgba(234, 179, 8, 0.6), 0 0 20px rgba(234, 179, 8, 0.3);
+        }
 
         /* Top Grid Neon Counters - Vibrant Colors */
         .stat-box-1 {
@@ -623,11 +626,106 @@ HTML_TEMPLATE = '''
             </div>
         </div>
 
+        <div class="cyber-panel border border-yellow-500/20 shadow-[0_0_20px_rgba(234,179,8,0.05)]">
+            <div class="panel-title-bar">
+                <div class="panel-indicator" style="background:#eab308; box-shadow:0 0 10px #eab308;"></div>
+                <i class="fa-solid fa-chart-line text-yellow-500"></i>
+                <h2 class="neon-text-yellow">LIVE ANALYTICS</h2>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-center font-poppins">
+                <div class="bg-[#0b0816] p-3 rounded-xl border border-white/5">
+                    <div class="text-xs text-gray-400 font-medium mb-1">
+                        <i class="fa-solid fa-eye text-emerald-400 mr-1"></i> Total Views
+                    </div>
+                    <span id="fbTotalViews" class="text-xl font-bold text-emerald-400 font-mono">0</span>
+                </div>
+                <div class="bg-[#0b0816] p-3 rounded-xl border border-white/5">
+                    <div class="text-xs text-gray-400 font-medium mb-1">
+                        <i class="fa-solid fa-calendar-day text-cyan-400 mr-1"></i> Today Views
+                    </div>
+                    <span id="fbTodayViews" class="text-xl font-bold text-cyan-400 font-mono">0</span>
+                </div>
+                <div class="bg-[#0b0816] p-3 rounded-xl border border-white/5">
+                    <div class="text-xs text-gray-400 font-medium mb-1">
+                        <i class="fa-solid fa-play text-pink-500 mr-1"></i> Total Spams
+                    </div>
+                    <span id="fbTotalSpamRun" class="text-xl font-bold text-pink-500 font-mono">0</span>
+                </div>
+                <div class="bg-[#0b0816] p-3 rounded-xl border border-white/5">
+                    <div class="text-xs text-gray-400 font-medium mb-1">
+                        <i class="fa-solid fa-circle-stop text-red-400 mr-1"></i> Stopped Spams
+                    </div>
+                    <span id="fbTotalSpamStop" class="text-xl font-bold text-red-400 font-mono">0</span>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <footer class="mt-10 mb-4 text-center text-[11px] font-semibold text-[#a0aec0] tracking-widest uppercase font-poppins">
         System Managed & Engineered By <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-pink-500 font-bold">JUBAYER</span> &copy; 2026
     </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set, runTransaction, onDisconnect, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDOIBkl6p_HY3QBR4uwE5Z0ze2VIQ1oQPc",
+            authDomain: "like-bd-penal.firebaseapp.com",
+            databaseURL: "https://like-bd-penal-default-rtdb.firebaseio.com",
+            projectId: "like-bd-penal",
+            storageBucket: "like-bd-penal.firebasestorage.app",
+            messagingSenderId: "119813395495",
+            appId: "1:119813395495:web:7a992c24d32053514aaa02"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let allUsers = [];
+        let allCategories = [];
+        let currentAdminPin = "1234";
+
+        // --- AUTH LOGIC ---
+        onValue(ref(db, 'app_settings/admin_pin'), s => {
+            if(s.exists()) currentAdminPin = String(s.val());
+        });
+
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        // ১. প্রতি রিফ্রেশ বা পেজ লোডে Today Views ও Total Views ১ করে বাড়বে
+        const todayViewsRef = ref(db, `analytics/views/${todayStr}`);
+        runTransaction(todayViewsRef, (currentValue) => (currentValue || 0) + 1);
+
+        const totalViewsRef = ref(db, 'analytics/total_views');
+        runTransaction(totalViewsRef, (currentValue) => (currentValue || 0) + 1);
+
+        // ২. রিয়েলটাইম লাইভ ভিউয়ার ট্র্যাকিং ব্যাকএন্ডে কাজ করবে
+        const activeBrowsersListRef = ref(db, 'analytics/active_browsers_list');
+        const newPresenceRef = push(activeBrowsersListRef);
+        set(newPresenceRef, true);
+        onDisconnect(newPresenceRef).remove();
+
+        // ৩. লাইভ ড্যাশবোর্ড আপডেট লিসেনার
+        onValue(ref(db, 'analytics'), (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                
+                document.getElementById('fbTotalViews').innerText = data.total_views || 0;
+                document.getElementById('fbTodayViews').innerText = (data.views && data.views[todayStr]) ? data.views[todayStr] : 0;
+                document.getElementById('fbTotalSpamRun').innerText = data.total_spam_started || 0;
+                document.getElementById('fbTotalSpamStop').innerText = data.total_spam_stopped || 0;
+            }
+        });
+
+        window.logSpamStart = function() {
+            runTransaction(ref(db, 'analytics/total_spam_started'), (val) => (val || 0) + 1);
+        };
+        window.logSpamStop = function() {
+            runTransaction(ref(db, 'analytics/total_spam_stopped'), (val) => (val || 0) + 1);
+        };
+    </script>
 
     <script>
         window.profileCache = {};
@@ -677,6 +775,7 @@ HTML_TEMPLATE = '''
                         showToastNotification('startMessage', data.error, true);
                     } else {
                         showToastNotification('startMessage', `Vector Disconnected: ${data.status}`);
+                        if(typeof window.logSpamStop === 'function') window.logSpamStop();
                         fetchStatus();
                     }
                 })
@@ -690,7 +789,6 @@ HTML_TEMPLATE = '''
                     document.getElementById('accCount').innerText = data.connected_accounts || data.accounts?.length || 0;
                     document.getElementById('activeSpamCount').innerText = data.active_spam.length;
                     
-                    // Render Connected Clusters
                     const accListDiv = document.getElementById('accountList');
                     if (data.accounts && data.accounts.length) {
                         accListDiv.innerHTML = data.accounts.map(acc => `
@@ -703,16 +801,13 @@ HTML_TEMPLATE = '''
                         accListDiv.innerHTML = '<div class="text-gray-500 text-sm text-center py-3"><i class="fa-solid fa-robot opacity-40 mr-1.5"></i> No active cluster servers connected</div>';
                     }
 
-                    // Smart Render Logic for Active Targets Pipeline
                     const targetsDiv = document.getElementById('activeTargets');
                     const activeSpam = data.active_spam || [];
 
                     if (activeSpam.length > 0) {
-                        // Remove placeholder if it exists
                         const placeholder = targetsDiv.querySelector('.text-center.text-gray-500');
                         if (placeholder) placeholder.remove();
 
-                        // 1. Delete cards from DOM that are no longer in active_spam list
                         const currentCards = targetsDiv.querySelectorAll('.vector-card');
                         currentCards.forEach(card => {
                             const cardUid = card.id.replace('card-vector-', '');
@@ -721,7 +816,6 @@ HTML_TEMPLATE = '''
                             }
                         });
 
-                        // 2. Add new cards safely without rewriting the existing ones
                         activeSpam.forEach(uid => {
                             const cardId = `card-vector-${uid}`;
                             let cardEl = document.getElementById(cardId);
@@ -754,7 +848,6 @@ HTML_TEMPLATE = '''
                                 `;
                                 targetsDiv.insertAdjacentHTML('beforeend', newCardHtml);
 
-                                // Fetch player info EXACTLY ONCE when card is freshly added
                                 fetchPlayerInfo(uid, (profile) => {
                                     const nameEl = document.getElementById(`name-${uid}`);
                                     const lvlEl = document.getElementById(`lvl-${uid}`);
@@ -830,6 +923,7 @@ HTML_TEMPLATE = '''
                     } else {
                         showToastNotification('startMessage', `JUBAYER Core Deploy Success: Active`);
                         document.getElementById('targetUid').value = '';
+                        if(typeof window.logSpamStart === 'function') window.logSpamStart();
                         fetchStatus();
                     }
                 })
